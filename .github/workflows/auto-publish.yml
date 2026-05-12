@@ -2,9 +2,11 @@ name: Auto Publish Future Posts
 
 on:
   schedule:
-    # 18:30 UTC का मतलब है भारत (Kolkata) के टाइम के हिसाब से ठीक रात के 12:00 बजे
+    # भारत (Kolkata) के टाइम के हिसाब से ठीक रात के 12:00 बजे
     - cron: '30 18 * * *'
-  workflow_dispatch:
+    # हर 2 घंटे में एक बार बैकअप चेकिंग
+    - cron: '0 */2 * * *'
+  workflow_dispatch: # मैन्युअल क्लिक करने का बटन
 
 permissions:
   contents: write
