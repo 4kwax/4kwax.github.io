@@ -1,0 +1,92 @@
+name: Index by Specific Date
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: 'तारीख दर्ज करें (YYYY-MM-DD फारमेट में, जैसे: 2026-05-12)'
+        required: true
+        default: '2026-05-12'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  index-by-date:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install googleapis
+        run: npm install googleapis
+
+      - name: Create credentials file
+        run: |
+          echo '${{ secrets.GOOGLE_INDEXING_CREDENTIALS }}' > credentials.json
+
+      - name: Run Date-Specific Indexing
+        run: |
+          cat << 'EOF' > date-index.js
+          const fs = require('fs');
+          const { google } = require('googleapis');
+          const key = require('./credentials.json');
+
+          async function runDateIndexing() {
+            const targetDate = process.env.TARGET_DATE;
+            console.log(`--- Searching for posts from date: ${targetDate} ---`);
+            
+            // यहाँ तुम्हारी नई वेबसाइट का लिंक लगा दिया है
+            const baseUrl = "https://4kwax.github.io"; 
+            const postsDir = './_posts';
+            let filesToProcess = [];
+
+            if (fs.existsSync(postsDir)) {
+              fs.readdirSync(postsDir).forEach(file => {
+                if (file.startsWith(targetDate) && (file.endsWith('.md') || file.endsWith('.markdown'))) {
+                  filesToProcess.push(file);
+                }
+              });
+            }
+
+            if (filesToProcess.length === 0) {
+              console.log(`[EMPTY] No posts found for ${targetDate}`);
+              process.exit(0);
+            }
+
+            console.log(`Found ${filesToProcess.length} posts for the selected date.`);
+
+            const jwtClient = new google.auth.JWT(
+              key.client_email, null, key.private_key,
+              ['https://www.googleapis.com/auth/indexing'], null
+            );
+
+            jwtClient.authorize(async (err, tokens) => {
+              if (err) { console.log('[ERROR] Auth failed'); return; }
+              const indexing = google.indexing({ version: 'v3', auth: jwtClient });
+
+              for (const file of filesToProcess) {
+                const slug = file.replace(targetDate + '-', '').replace('.md', '').replace('.markdown', '');
+                const url = `${baseUrl}/${slug}/`;
+                
+                try {
+                  await indexing.urlNotifications.publish({
+                    requestBody: { url: url, type: 'URL_UPDATED' }
+                  });
+                  console.log(`[SUCCESS] Sent -> ${url}`);
+                } catch (e) {
+                  console.log(`[ERROR] Failed -> ${url}`);
+                }
+                await new Promise(r => setTimeout(r, 2000));
+              }
+              console.log('--- Done ---');
+            });
+          }
+          runDateIndexing();
+          EOF
+          TARGET_DATE=${{ github.event.inputs.target_date }} node date-index.js
