@@ -1,0 +1,42 @@
+---
+layout: null
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  {% for post in site.posts %}
+  <url>
+    <loc>{{ site.url }}{{ site.baseurl }}{{ post.url }}</loc>
+    {% assign content_html = post.content %}
+    {% assign images = content_html | split: '<img' %}
+    
+    {% for image in images %}
+      {% if image contains 'src=' %}
+        <image:image>
+          {% comment %} फोटो का सही URL निकालना {% endcomment %}
+          {% assign src_part = image | split: 'src="' | last %}
+          {% assign image_url = src_part | split: '"' | first %}
+          
+          <image:loc>
+            {% if image_url contains 'http' %}
+              {{ image_url | xml_escape }}
+            {% else %}
+              {{ site.url }}{{ site.baseurl }}{{ image_url | xml_escape }}
+            {% endif %}
+          </image:loc>
+
+          {% comment %} Alt टैग से आपका SEO कीवर्ड निकालना {% endcomment %}
+          {% if image contains 'alt="' %}
+            {% assign alt_part = image | split: 'alt="' | last %}
+            {% assign alt_text = alt_part | split: '"' | first | strip_html | xml_escape %}
+            {% if alt_text != "" %}
+              <image:title>{{ alt_text }}</image:title>
+              <image:caption>{{ alt_text }}</image:caption>
+            {% endif %}
+          {% endif %}
+        </image:image>
+      {% endif %}
+    {% endfor %}
+  </url>
+  {% endfor %}
+</urlset>
