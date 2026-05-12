@@ -20,7 +20,7 @@ layout: null
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* सिलेक्शन रोकने का सबसे पावरफुल कोड */
+        /* 1. सिलेक्शन रोकने का सबसे पावरफुल कोड */
         * {
             -webkit-user-select: none !important;
             -moz-user-select: none !important;
@@ -29,7 +29,7 @@ layout: null
             -webkit-touch-callout: none !important;
         }
 
-        /* फोटो को छूट दें ताकि लोग उसे डाउनलोड कर सकें */
+        /* 2. फोटो को छूट दें ताकि लोग उसे डाउनलोड कर सकें */
         img {
             -webkit-user-select: auto !important;
             user-select: auto !important;
@@ -37,6 +37,7 @@ layout: null
             pointer-events: auto !important;
         }
 
+        /* आपका बाकी का डिजाइन (CSS) */
         body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: #f8f9fa; color: #333; line-height: 1.5; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
         .header { background: #111; color: #fff; padding: 15px; text-align: center; }
         .header a { color: #fff; text-decoration: none; font-size: 20px; font-weight: bold; letter-spacing: 1px; }
@@ -56,7 +57,7 @@ layout: null
             margin-right: calc(-50vw + 50%) !important; 
             padding: 0 !important; 
             border-radius: 0 !important; 
-            background: #eee; /* यह फोटो लोड होने से पहले जगह घेर कर रखेगा */
+            background: #eee; 
         }
         
         /* पहली फोटो के लिए जगह (16:9) */
@@ -91,8 +92,8 @@ layout: null
             <h1>{{ page.title }}</h1>
             
             <div class="main-body">
-                {% assign optimized_content = content | replace: '<img', '<img loading="lazy" class="khada-img"' %}
-                {{ optimized_content | replace_first: '<img loading="lazy" class="khada-img"', '<img fetchpriority="high" loading="eager" class="bediya-img"' }}
+                {% assign optimized_content = content | replace: '<img', '<img class="khada-img"' %}
+                {{ optimized_content | replace_first: '<img class="khada-img"', '<img fetchpriority="high" loading="eager" class="bediya-img"' }}
             </div>
 
         </article>
