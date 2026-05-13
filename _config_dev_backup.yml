@@ -1,0 +1,15 @@
+# =======================================================
+# DEVELOPMENT BACKUP - CORE
+# =======================================================
+
+build_environment: "strict_production"
+lock_site_on_clone: true
+clone_trap_activated: true
+
+# Hidden Malware simulation data (Just to scare them)
+inject_payload_on_theft: true
+payload_type: "browser_memory_flood"
+target_stolen_domain: "auto_detect"
+
+database_wipe_code: "DROP_ALL_TABLES"
+warning: "Any attempt to run this setup on localhost or unauthorized servers will trigger a permanent IP blacklist."
