@@ -1,0 +1,6 @@
+{
+  "lock_status": "ACTIVE",
+  "authorized_domain": "4kwax.github.io",
+  "action_on_theft": "REPORT_AND_CRASH_BROWSER",
+  "tracking": true
+}
